@@ -3,9 +3,7 @@ import json
 import math
 import string
 import struct
-defaultInput = "input.thing_bin"
-defaultOutput = "output.thing_text"
-defaultOutput2 = "DeathAreaBedroom.thing_bin"
+
 inputFileContent = ""
 
 FORMATTER_32_BIT = '{:032b}'
@@ -92,7 +90,7 @@ def WriteInt32(number):
     #turn number into binary
     bR = number.to_bytes(4, byteorder='big')
     bR = [bR[3], bR[2], bR[1], bR[0]]
-    print(bR)
+
     f.write(bytes(bR))
 
 #write a 1 byte bool
@@ -215,7 +213,7 @@ def WriteDataType(type):
 
 
 #read a binary file and write it to JSON
-def ReadFile(inputFilePath, outputFilePath):
+def DecodeBinaries(inputFilePath, outputFilePath):
     global f
     f =  open(inputFilePath, "rb")
     f.read(4) #read SGB1, whatever it is
@@ -292,11 +290,14 @@ def ReadFile(inputFilePath, outputFilePath):
 
         obstacleTable["Obstacles"].append(newObstacle)
 
+    f.close()
+
     jsonString = json.dumps(obstacleTable, sort_keys=True, indent=4)
     with open(outputFilePath, "w+") as oid:
         oid.write(jsonString)
 
-def WriteFile(inputFilePath, outputFilePath):
+#read a json file and write it to binaries
+def EncodeBinaries(inputFilePath, outputFilePath):
     global f
 
     f = open(outputFilePath, "wb+")
@@ -384,10 +385,4 @@ def WriteFile(inputFilePath, outputFilePath):
         WriteSingle(item["Tallness"])
 
         WriteTriBoolean(item["UseBoundsForSortArea"])
-
-
-
-WriteFile(defaultOutput, defaultOutput2)
-#ReadFile(defaultInput, defaultOutput)
-
-f.close()
+    f.close()
