@@ -12,13 +12,13 @@ The script has 2 modes, encode and decode.
 
 ## Encode mode (JSON to binaries)
 ```
-HadesMapper e
+HadesMapper ec
 ```
 Defaults to an input of `input.thing_text` and output of `output.thing_bin`.
 
 ## Decode Mode (Binaries to JSON)
 ```
-HadesMapper d
+HadesMapper dc
 ```
 Defaults to an input of `input.thing_bin` and output of `output.thing_text`.
 
