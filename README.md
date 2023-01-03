@@ -42,3 +42,8 @@ then in your Lua script call this line whenever you want to load your map
 ```
 LoadMap({ Name = "MyNewMap"})
 ```
+
+# Obstacle Field Information
+For the most up to date information on how the binaries work and what each field does, refer to this spreadsheet
+
+https://docs.google.com/spreadsheets/d/1EIqwRIcjqb6rKikrbKpjK-iHWXav6UJWX-TTRfb65SA/edit#gid=1125914576
