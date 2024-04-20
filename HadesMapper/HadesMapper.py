@@ -213,7 +213,7 @@ def WriteDataType(type):
 
 
 #read a binary file and write it to JSON
-def DecodeBinaries(inputFilePath, outputFilePath):
+def DecodeBinaries(inputFilePath, outputFilePath, issequel):
     global f
     f =  open(inputFilePath, "rb")
     f.read(4) #read SGB1, whatever it is
@@ -223,8 +223,11 @@ def DecodeBinaries(inputFilePath, outputFilePath):
     for i in range(obstacleCount):
         ReadBoolean() #read do create flag
         newObstacle = {}
-        newObstacle["ActivateAtRange"] = ReadBoolean()
-        newObstacle["ActivationRange"] = ReadSingle()
+        
+        if issequel == False:
+            newObstacle["ActivateAtRange"] = ReadBoolean()
+            newObstacle["ActivationRange"] = ReadSingle()
+
         newObstacle["Active"] = ReadBoolean()
         newObstacle["AllowMovementReaction"] = ReadBoolean()
         newObstacle["Ambient"] = ReadSingle()
@@ -253,7 +256,7 @@ def DecodeBinaries(inputFilePath, outputFilePath):
         newObstacle["GroupNames"] = []
         groupNamesLength = ReadInt32()
         for x in range(groupNamesLength):
-            ReadSingle() #for whatever reason the engine reads 4 bytes and just ... does nothing with them
+            if issequel == False: ReadSingle() #for whatever reason the engine reads 4 bytes and just ... does nothing with them
             isStringNull = ReadBoolean()
             if not isStringNull:
                 newObstacle["GroupNames"].append("")
@@ -297,7 +300,7 @@ def DecodeBinaries(inputFilePath, outputFilePath):
         oid.write(jsonString)
 
 #read a json file and write it to binaries
-def EncodeBinaries(inputFilePath, outputFilePath):
+def EncodeBinaries(inputFilePath, outputFilePath, issequel):
     global f
 
     f = open(outputFilePath, "wb+")
@@ -317,8 +320,10 @@ def EncodeBinaries(inputFilePath, outputFilePath):
     for item in obstacles:
         WriteBoolean(True)
 
-        WriteBoolean(item["ActivateAtRange"])
-        WriteSingle(item["ActivationRange"])
+        if issequel == False:
+            WriteBoolean(item["ActivateAtRange"])
+            WriteSingle(item["ActivationRange"])
+
         WriteBoolean(item["Active"])
 
         WriteBoolean(item["AllowMovementReaction"])
@@ -347,7 +352,7 @@ def EncodeBinaries(inputFilePath, outputFilePath):
 
         WriteInt32(len(item["GroupNames"]))
         for group in item["GroupNames"]:
-            f.write(bytes([0,0,0,0]))
+            if issequel == False: f.write(bytes([0,0,0,0]))
             WriteStringAllowNull(group)
         
         WriteStringAllowNull(item["HelpTextID"])

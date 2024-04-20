@@ -8,7 +8,10 @@ This is a tool to read the game's binary map files and decompile them to a JSON 
 Download the latest [Release](https://github.com/SGG-Modding/HadesMapper/releases). Open command prompt and cd into the directory of the wheel and pip install it, remember to have .whl at the end of the name.
 
 # How to use this?
-The script has 2 modes, encode and decode. 
+The script has 2 modes, encode and decode, as well as 2 submodes for Hades I and Hades II.
+
+## Hades 2
+To encode or decode any map binaries to or from Hades II, add `-s` or `-sequel` as a flag. Defaults to using Hades I formating.
 
 ## Encode mode (JSON to binaries)
 ```
@@ -42,3 +45,7 @@ then in your Lua script call this line whenever you want to load your map
 ```
 LoadMap({ Name = "MyNewMap"})
 ```
+
+# Binary Information
+For the most up to date information on how the binaries work, refer to this spreadsheet
+https://docs.google.com/spreadsheets/d/1EIqwRIcjqb6rKikrbKpjK-iHWXav6UJWX-TTRfb65SA/edit#gid=1125914576
