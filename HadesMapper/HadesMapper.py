@@ -116,46 +116,6 @@ def WriteTriBoolean(value):
 #write a float using struct
 def WriteSingle(inp):
     if inp != 0:
-        # #see https://en.wikipedia.org/wiki/Single-precision_floating-point_format
-        # #get rid of sign so that math isnt affected, its added back alter
-        # value = abs(inp)
-        # decimalBinary = ""
-        # decimal = value - math.floor(value)
-        # currentDecimal = decimal
-        # #convert fraction into binary fraction, limiting at precision limit (23 repetitions)
-        # for i in range(0, 23):
-        #     currentDecimal = currentDecimal * 2
-        #     decimalBinary += str(int(currentDecimal >= 1))
-        #     if currentDecimal >= 1:
-        #         currentDecimal -= 1
-        #     if currentDecimal == 0:
-        #         break
-            
-        # #get whole value
-        # wholeBinary = str(bin(math.floor(value - decimal)))[2:]
-        # #get normalized exponent (offset from 127)
-        # normalExponent = 127 + (len(wholeBinary) - 1)
-        # #convert exponent into binary
-        # exponentBinary = str(bin(normalExponent))[2:]
-        # #shift so that only 1 digit remains before decimal point
-        # fractionBinary = wholeBinary[1:] + decimalBinary
-
-        # #concat all parts together into an unrounded (and thus unlimited in size) set of bits
-        # unroundedBinary = str(int(inp < 0)) + exponentBinary + fractionBinary
-        
-        # binaryRep = ""
-        # #if less then len 32 append 0s to end to get to 32 bits
-        # if len(unroundedBinary) < 32:
-        #     binaryRep = unroundedBinary + "0" * (32 - len(binaryRep))
-        # #if greater then 32 round to 32 bits 1s round up the next digit, very simply so if we get any 1 then the rest chain causing the final bit to be 1
-        # #it should not round like this, this is not how it works but its a quick implementation
-        # elif len(unroundedBinary) > 32:
-        #     for i in range(len(unroundedBinary) - 1, 32, -1):
-        #         if unroundedBinary[i] == "1":
-        #             binaryRep = unroundedBinary[0:31] + "1"
-        #             break
-        #     else:
-        #         binaryRep = unroundedBinary
         binaryRep =''.join('{:0>8b}'.format(c) for c in struct.pack('!f', inp))
         #store binary as 2 chunks of 16
         sections = ["",""]
@@ -163,7 +123,6 @@ def WriteSingle(inp):
             byte = binaryRep[i-8:i]
             sections[(i - 1) // 16] += byte
 
-        #f.write(chr(int(bytes[1][0:8], 2))) #1,2
         #write in order of D C B A
         for section in reversed(sections):
             sectionBytes = [int(section[8:16], 2), int(section[0:8], 2)]
@@ -215,7 +174,7 @@ def WriteDataType(type):
 #read a binary file and write it to JSON
 def DecodeBinaries(inputFilePath, outputFilePath, issequel):
     global f
-    f =  open(inputFilePath, "rb")
+    f =  open(inputFilePath + ".thing_bin", "rb")
     f.read(4) #read SGB1, whatever it is
     f.read(4) #always going be 12, put need to read it to get it out of the way
     obstacleCount = ReadUInt32()
@@ -296,17 +255,17 @@ def DecodeBinaries(inputFilePath, outputFilePath, issequel):
     f.close()
 
     jsonString = json.dumps(obstacleTable, sort_keys=True, indent=4)
-    with open(outputFilePath, "w+") as oid:
+    with open(outputFilePath + ".thing_text", "w+") as oid:
         oid.write(jsonString)
 
 #read a json file and write it to binaries
 def EncodeBinaries(inputFilePath, outputFilePath, issequel):
     global f
 
-    f = open(outputFilePath, "wb+")
+    f = open(outputFilePath + ".thing_bin", "wb+")
 
     inputFileContent = ""
-    with open(inputFilePath) as fid:
+    with open(inputFilePath + ".thing_text") as fid:
         lines = fid.readlines()
         inputFileContent = "".join(lines)
 
@@ -326,8 +285,14 @@ def EncodeBinaries(inputFilePath, outputFilePath, issequel):
 
         WriteBoolean(item["Active"])
 
-        WriteBoolean(item["AllowMovementReaction"])
-        WriteSingle(item["Ambient"])
+        if "AllowMovementReaction" in item:
+            WriteBoolean(item["AllowMovementReaction"])
+        else:
+            WriteBoolean(True)
+        if "Material" in item and item["Material"] != None:
+             WriteSingle(item["Material"]["Ambient"])
+        else:
+            WriteSingle(0)
         WriteSingle(item["Angle"])
         
         WriteInt32(len(item["AttachedIDs"]))
@@ -335,17 +300,40 @@ def EncodeBinaries(inputFilePath, outputFilePath, issequel):
             WriteInt32(attachedID)
         WriteInt32(item["AttachToID"])
 
-        WriteBoolean(item["CausesOcculsion"])
-        WriteBoolean(item["Clutter"])
+
+        if "CausesOcculsion" in item:
+            WriteBoolean(item["CausesOcculsion"])
+        else:
+            WriteBoolean(True)
+        
+        if "Clutter" in item:
+            WriteBoolean(item["Clutter"])
+        else:
+            WriteBoolean(False)
         WriteBoolean(item["Collision"])
 
         WriteColor(item["Color"])
 
-        WriteStringAllowNull(item["Comments"])
+        if "Comments" in item:
+            WriteStringAllowNull(item["Comments"])
+        else:
+            WriteStringAllowNull("")
 
-        WriteTriBoolean(item["CreatesShadows"])
-        WriteDataType(item["DataType"])
-        WriteTriBoolean(item["DrawVfxOnTop"])
+        if "CreatesShadows" in item:
+            WriteTriBoolean(item["CreatesShadows"])
+        else:
+            WriteTriBoolean(True)
+
+        if item["DataType"] != "MapArea":
+            WriteDataType(item["DataType"])
+        else:
+            WriteDataType("Obstacle")
+
+        if "DrawVfxOnTop" in item:
+            WriteTriBoolean(item["DrawVfxOnTop"])
+        else:
+            WriteTriBoolean(True)
+
         
         WriteBoolean(item["FlipHorizontal"])
         WriteBoolean(item["FlipVertical"])
@@ -355,11 +343,19 @@ def EncodeBinaries(inputFilePath, outputFilePath, issequel):
             if issequel == False: f.write(bytes([0,0,0,0]))
             WriteStringAllowNull(group)
         
-        WriteStringAllowNull(item["HelpTextID"])
+        if "HelpTextID" in item:
+            WriteStringAllowNull(item["HelpTextID"])
+        else:
+            WriteStringAllowNull("")
         
-        WriteSingle(item["Hue"])
-        WriteSingle(item["Saturation"])
-        WriteSingle(item["Value"])
+        if "Hue" in item:
+            WriteSingle(item["Hue"])
+            WriteSingle(item["Saturation"])
+            WriteSingle(item["Value"])
+        else:
+            WriteSingle(0)
+            WriteSingle(0)
+            WriteSingle(0)
 
         WriteInt32(item["Id"])
 
@@ -369,25 +365,47 @@ def EncodeBinaries(inputFilePath, outputFilePath, issequel):
         WriteSingle(item["Location"]["X"])
         WriteSingle(item["Location"]["Y"])
 
-        WriteStringAllowNull(item["Name"])
+        if "Name" in item:
+            WriteStringAllowNull(item["Name"])
+        else:
+            WriteStringAllowNull("")
 
         WriteSingle(item["OffsetZ"])
         WriteSingle(item["ParallaxAmount"])
 
-        WriteInt32(len(item["Points"]))
-        for point in item["Points"]:
-            WriteSingle(point["X"])
-            WriteSingle(point["Y"])
+        if "Points" in item:
+            WriteInt32(len(item["Points"]))
+            for point in item["Points"]:
+                WriteSingle(point["X"])
+                WriteSingle(point["Y"])
+        else:
+            WriteInt32(0)
         
         WriteSingle(item["Scale"])
-        WriteSingle(item["SkewAngle"])
-        WriteSingle(item["SkewScale"])
+        if "SkewAngle" in item:
+            WriteSingle(item["SkewAngle"])
+        else:
+            WriteSingle(0)
+
+        if "SkewScale" in item:
+            WriteSingle(item["SkewScale"])
+        else:
+            WriteSingle(0)
 
         WriteInt32(item["SortIndex"])
 
-        WriteTriBoolean(item["StopsLight"])
+        if "StopsLight" in item:
+            WriteTriBoolean(item["StopsLight"])
+        else:
+            WriteTriBoolean(True)
+    
+        if "Tallness" in item:
+            WriteSingle(item["Tallness"])
+        else:
+            WriteSingle(0)
 
-        WriteSingle(item["Tallness"])
-
-        WriteTriBoolean(item["UseBoundsForSortArea"])
+        if "UseBoundsForSortArea" in item:
+            WriteTriBoolean(item["UseBoundsForSortArea"])
+        else:
+            WriteTriBoolean(False)
     f.close()

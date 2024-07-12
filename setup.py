@@ -15,7 +15,7 @@ setup(
     entry_points = {
         "console_scripts": ['HadesMapper = HadesMapper.cli:main']
         },
-    version = "2.0",
+    version = "2.1",
     description = "Unpack Hades and Hades II's map binaries into JSON and pack JSON into game usable map binaries",
     #long_description = long_descr,
     author = "erumi321",

@@ -8,7 +8,7 @@ This is a tool to read the game's binary map files and decompile them to a JSON 
 Download the latest [Release](https://github.com/SGG-Modding/HadesMapper/releases). Open command prompt and cd into the directory of the wheel and pip install it, remember to have .whl at the end of the name.
 
 # How to use this?
-The script has 2 modes, encode and decode, as well as 2 submodes for Hades I and Hades II.
+The script has 2 modes, encode and decode, as well as 2 submodes for Hades I and Hades II. **When inputting file names do not put their extension, the script automatically handles that (files must have the extension `.thing_text` or `.thing_bin`)**.
 
 ## Hades 2
 To encode or decode any map binaries to or from Hades II, add `-s` or `-sequel` as a flag. Defaults to using Hades I formating.
@@ -17,18 +17,18 @@ To encode or decode any map binaries to or from Hades II, add `-s` or `-sequel` 
 ```
 HadesMapper ec
 ```
-Defaults to an input of `input.thing_text` and output of `output.thing_bin`.
+Defaults to an input of `input` and output of `output`.
 
 ## Decode Mode (Binaries to JSON)
 ```
 HadesMapper dc
 ```
-Defaults to an input of `input.thing_bin` and output of `output.thing_text`.
+Defaults to an input of `input` and output of `output`.
 
 ## Arguments
 Both commands share the same arguments which are
-* `-i` or `-input`: changes the input file the script reads from
-* `-o` or `-output`: changes the output file the script writes to
+* `-i` or `-input`: changes the input file the script reads from, automatically adds `.thing_text` or `.thing_bin` to the name given.
+* `-o` or `-output`: changes the output file the script writes to, automatically adds `.thing_text` or `.thing_bin` to the name given.
 
 # Putting it in Game
 To put a new binary in the game, name your new binary to whatever your map name is, for example `MyNewMap.thing_bin`. Put it in your mod folder and put 2 lines in your modfile.txt which read:
