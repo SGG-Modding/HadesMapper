@@ -290,7 +290,9 @@ def EncodeBinaries(inputFilePath, outputFilePath, issequel):
         else:
             WriteBoolean(True)
         if "Material" in item and item["Material"] != None:
-             WriteSingle(item["Material"]["Ambient"])
+            WriteSingle(item["Material"]["Ambient"])
+        elif "Ambient" in item:
+            WriteSingle(item["Ambient"])
         else:
             WriteSingle(0)
         WriteSingle(item["Angle"])
