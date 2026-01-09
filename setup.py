@@ -15,10 +15,10 @@ setup(
     entry_points = {
         "console_scripts": ['HadesMapper = HadesMapper.cli:main']
         },
-    version = "2.1",
+    version = "2.2",
     description = "Unpack Hades and Hades II's map binaries into JSON and pack JSON into game usable map binaries",
     #long_description = long_descr,
     author = "erumi321",
     author_email = "erumi321@gmail.com",
-    url = "",
+    url = "https://github.com/SGG-Modding/HadesMapper",
     )
